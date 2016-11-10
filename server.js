@@ -29,20 +29,21 @@ admin.initializeApp({
 var db = admin.database();
 var ref = db.ref("server/saving-data/fireblog");
 
-var categories ={"items":['rock',
-                  'metal',
-                  'pop',
-                  'indie_alt',
-                  'edm_dance',
-                  'rnb',
-                  'county',
-                  'folk_americana',
-                  'soul',
-                  'jazz',
-                  'blues',
-                  'hiphop'
-                ],
-              "status":"ok"};
+var categories ={"items":[
+                          'rock',
+                          'metal',
+                          'pop',
+                          'indie_alt',
+                          'edm_dance',
+                          'rnb',
+                          'county',
+                          'folk_americana',
+                          'soul',
+                          'jazz',
+                          'blues',
+                          'hiphop'
+                        ],
+                 "status":"ok"};
 
 var playlists = {'items':{
                           'rock':
@@ -110,17 +111,17 @@ app.get('/', function(req, res){
       res.send(response);
       return;
     }
-    var usersRef = ref.child("users");
-usersRef.set({
-  alanisawesome: {
-    date_of_birth: "June 23, 1912",
-    full_name: "Alan Turing"
-  },
-  gracehop: {
-    date_of_birth: "December 9, 1906",
-    full_name: "Grace Hopper"
-  }
-});
+    // var usersRef = ref.child("users");
+    // usersRef.set({
+    //   alanisawesome: {
+    //     date_of_birth: "June 23, 1912",
+    //     full_name: "Alan Turing"
+    //   },
+    //   gracehop: {
+    //     date_of_birth: "December 9, 1906",
+    //     full_name: "Grace Hopper"
+    //   }
+    // });
     var response={};
     response.result="welcome!";
     response.status = "ok";
@@ -131,12 +132,21 @@ usersRef.set({
 
 app.get('/categories',function(req, res){
   res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(categories));
+  res.send(categories);
 });
 
 app.get('/songs/:category', function(req, res){
-  var author = playlists.items[req.params.category].author;
-  var id = playlists.items[req.params.category].id;
+  var item = playlists.items[req.params.category];
+  if(item == null){
+    var response={};
+    response.result="wrong category";
+    response.status = "error";
+    res.setHeader('Content-Type', 'application/json');
+    res.send(response);
+  }
+  var author = item.author;
+  var id = item.id;
+
   get_access_token(function(err){
     if(err){
       var response={};

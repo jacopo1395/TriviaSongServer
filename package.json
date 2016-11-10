@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0",
+    "firebase": "^3.5.2",
+    "spotify-web-api-node": "^2.3.6"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacopo1395/TriviaSongServer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jacopo1395/TriviaSongServer/issues"
+  },
+  "homepage": "https://github.com/jacopo1395/TriviaSongServer#readme",
+  "description": ""
+}

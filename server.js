@@ -86,7 +86,11 @@ var refresh_access_token = function(){
 
 app.get('/', function(req, res){
   get_access_token(function(err){
-      res.send('/home ok');
+    var response;
+    response.result="welcome!";
+    response.status = "ok";
+    res.setHeader('Content-Type', 'application/json');
+    res.send(response);
   });
 });
 
@@ -95,13 +99,15 @@ app.get('/categories',function(req, res){
   res.send(JSON.stringify(categories));
 });
 
-
 app.get('/songs/:category', function(req, res){
   var author = playlists.items[req.params.category].author;
   var id = playlists.items[req.params.category].id;
   get_access_token(function(err){
     if(err){
-      res.send('error');
+      var response;
+      response.status = "error";
+      res.setHeader('Content-Type', 'application/json');
+      res.send(response);
       return;
     }
     // Get tracks in a playlist
@@ -127,7 +133,10 @@ app.get('/songs/:category', function(req, res){
         res.send(songs);
       }, function(err) {
         console.log('Something went wrong!', err);
-        res.send('error');
+        var response;
+        response.status = "error";
+        res.setHeader('Content-Type', 'application/json');
+        res.send(response);
       });
   });
 
@@ -137,7 +146,10 @@ app.get('/songs/:category', function(req, res){
 app.get('/possibilities/:album_id', function(req,res){
     get_access_token(function(err){
       if(err){
-        res.send('error');
+        var response;
+        response.status = "error";
+        res.setHeader('Content-Type', 'application/json');
+        res.send(response);
         return;
       }
       spotifyApi.getAlbumTracks(req.params.album_id, { limit : 10 })
@@ -157,6 +169,10 @@ app.get('/possibilities/:album_id', function(req,res){
             res.send(possibilities);
           }, function(err) {
             console.log('Something went wrong!', err);
+            var response;
+            response.status = "error";
+            res.setHeader('Content-Type', 'application/json');
+            res.send(response);
           });
 
     });
@@ -164,61 +180,61 @@ app.get('/possibilities/:album_id', function(req,res){
 
 
 // spotifyApi
-app.get('/categories_spotify',function(req, res){
-  get_access_token(function(err){
-    if(err){
-      res.send('error');
-      return;
-    }
-    spotifyApi.getCategories({
-          limit : 20,
-          offset: 0,
-          country: 'IT',
-          locale: 'it_IT'
-      })
-      .then(function(data) {
-        console.log('/categories: ok');
-        var result = [];
-        var items = data.body['categories']['items'];
-        for (var i in items){
-          result = result.concat(items[i]['id']);
-        }
-        res.send(result);
-
-      }, function(err) {
-        console.log("Something went wrong!", err);
-        res.send('error');
-      });
-  });
-});
-
-app.get('/playlists/:category',function(req, res){
-  // Get Playlists for a Category
-  spotifyApi.getPlaylistsForCategory(req.params.category, {
-        country: 'IT',
-        limit : 5,
-        offset : 0
-      })
-    .then(function(data) {
-      console.log(data.body);
-      res.send(data.body);
-    }, function(err) {
-      console.log("Something went wrong!", err);
-      res.send('error');
-    });
-});
-
-app.get('/songs/:owner/:playlist', function(req, res){
-  // Get tracks in a playlist
-  spotifyApi.getPlaylistTracks(req.params.owner, req.params.playlist, { 'offset' : 0, 'limit' : 5, 'fields' : 'items' })
-    .then(function(data) {
-      console.log('The playlist contains these tracks', data.body);
-      res.send(data.body);
-    }, function(err) {
-      console.log('Something went wrong!', err);
-      res.send('error');
-    });
-});
+// app.get('/categories_spotify',function(req, res){
+//   get_access_token(function(err){
+//     if(err){
+//       res.send('error');
+//       return;
+//     }
+//     spotifyApi.getCategories({
+//           limit : 20,
+//           offset: 0,
+//           country: 'IT',
+//           locale: 'it_IT'
+//       })
+//       .then(function(data) {
+//         console.log('/categories: ok');
+//         var result = [];
+//         var items = data.body['categories']['items'];
+//         for (var i in items){
+//           result = result.concat(items[i]['id']);
+//         }
+//         res.send(result);
+//
+//       }, function(err) {
+//         console.log("Something went wrong!", err);
+//         res.send('error');
+//       });
+//   });
+// });
+//
+// app.get('/playlists/:category',function(req, res){
+//   // Get Playlists for a Category
+//   spotifyApi.getPlaylistsForCategory(req.params.category, {
+//         country: 'IT',
+//         limit : 5,
+//         offset : 0
+//       })
+//     .then(function(data) {
+//       console.log(data.body);
+//       res.send(data.body);
+//     }, function(err) {
+//       console.log("Something went wrong!", err);
+//       res.send('error');
+//     });
+// });
+//
+// app.get('/songs/:owner/:playlist', function(req, res){
+//   // Get tracks in a playlist
+//   spotifyApi.getPlaylistTracks(req.params.owner, req.params.playlist, { 'offset' : 0, 'limit' : 5, 'fields' : 'items' })
+//     .then(function(data) {
+//       console.log('The playlist contains these tracks', data.body);
+//       res.send(data.body);
+//     }, function(err) {
+//       console.log('Something went wrong!', err);
+//       res.send('error');
+//     });
+// });
 
 
 console.log('Listening on 3000');

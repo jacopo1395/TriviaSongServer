@@ -63,6 +63,14 @@ var app = express();
 
 app.use(cookieParser());
 
+var send_error = function(res){
+      var response = {};
+      response.status = "error";
+      res.setHeader('Content-Type', 'application/json');
+      res.send(response);
+      return;
+};
+
 var get_access_token = function (callback) {
     if(startTime[0]!=-1) {
         diff = process.hrtime(startTime);
@@ -106,11 +114,7 @@ app.get('/', function (req, res) {
     // startTime=process.hrtime();
     get_access_token(function (err) {
         if (err) {
-            var response = {};
-            response.status = "error";
-            res.setHeader('Content-Type', 'application/json');
-            res.send(response);
-            return;
+            send_error(res);
         }
         // var usersRef = ref.child("users");
         // usersRef.set({
@@ -149,85 +153,115 @@ app.get('/songs/:category', function (req, res) {
     var author = item.author;
     var id = item.id;
 
+
     get_access_token(function (err) {
         if (err) {
-            var response = {};
-            response.status = "error";
-            res.setHeader('Content-Type', 'application/json');
-            res.send(response);
-            return;
+            send_error();
         }
         // Get tracks in a playlist
-        spotifyApi.getPlaylistTracks(author, id, {'offset': 0, 'limit': 10, 'fields': 'items'})
+        spotifyApi.getPlaylistTracks(author, id, {'offset': 0})
             .then(function (data) {
                 console.log('The playlist contains these tracks', data.body);
+                var tot = data.body.total;
+                console.log("tot= ",tot);
+                if(tot>100) tot=100;
+                if(tot < 5)
+                  send_error();
                 var items = data.body.items;
                 var songs = {};
-                var j = 0;
-                for (var i in items) {
-                    if (items[i].track.preview_url != null) {
+                var j = 0; var i=0;
+                var array=[];
+                for (var n = 0; n < 5; n++) {
+                    do{
+                      i=Math.floor(Math.random() * (tot));
+                    }while(contains.call(array, i));
+                    array.push(i);
+                    if (items[i].track.preview_url != null && items[i].track.track_number!=null) {
                         songs['song' + j] = {
                             'author': items[i].track.artists[0].name,
                             'album': items[i].track.album.name,
                             'album_id': items[i].track.album.id,
                             'album_image': items[i].track.album.images[0].url,
                             'title': items[i].track.name,
-                            'link': items[i].track.preview_url
+                            'link': items[i].track.preview_url,
+                            'track_number': items[i].track.track_number
                         };
                         j++;
                     }
+                    else n--;
                 }
                 songs.total = j;
                 songs.status = "ok";
                 res.setHeader('Content-Type', 'application/json');
                 res.send(songs);
             }, function (err) {
-                console.log('Something went wrong!', err);
-                var response = {};
-                response.status = "error";
-                res.setHeader('Content-Type', 'application/json');
-                res.send(response);
+                send_error();
             });
     });
 
 
 });
 
-app.get('/possibilities/:album_id', function (req, res) {
+app.get('/possibilities/:album_id/:track_number ', function (req, res) {
     get_access_token(function (err) {
         if (err) {
-            var response = {};
-            response.status = "error";
-            res.setHeader('Content-Type', 'application/json');
-            res.send(response);
-            return;
+            send_error();
         }
-        spotifyApi.getAlbumTracks(req.params.album_id, {limit: 10})
+        spotifyApi.getAlbumTracks(req.params.track_number , {})
             .then(function (data) {
                 console.log(data.body);
                 var items = data.body.items;
+                var tot = data.body.total;
+                if(tot < 4) send_error();
                 var possibilities = {};
                 var j = 1;
-                for (var i in items) {
-                    var name = items[i].name.split("-")[0];
+                var array=[req.params.disc_number];
+                for (var n = 0; n < 4; n++) {
+                    do{
+                      i=Math.floor(Math.random() * (tot));
+                    }while(contains.call(array, i));
+                    array.push(i);
+                    var name = items[i].name;
                     possibilities['possibility' + j] = name;
                     j++;
                 }
-                possibilities.total = j - 1;
+                possibilities.total = 4;
                 possibilities.status = "ok";
                 res.setHeader('Content-Type', 'application/json');
                 res.send(possibilities);
             }, function (err) {
                 console.log('Something went wrong!', err);
-                var response;
-                response.status = "error";
-                res.setHeader('Content-Type', 'application/json');
-                res.send(response);
+                send_error();
             });
 
     });
 });
 
+var contains = function(needle) {
+    // Per spec, the way to identify NaN is that it is not equal to itself
+    var findNaN = needle !== needle;
+    var indexOf;
 
+    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function(needle) {
+            var i = -1, index = -1;
+
+            for(i = 0; i < this.length; i++) {
+                var item = this[i];
+
+                if((findNaN && item !== item) || item === needle) {
+                    index = i;
+                    break;
+                }
+            }
+
+            return index;
+        };
+    }
+
+    return indexOf.call(this, needle) > -1;
+};
 console.log('Listening on 3000');
 app.listen(3000);

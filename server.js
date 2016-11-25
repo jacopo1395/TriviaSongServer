@@ -165,7 +165,7 @@ app.get('/songs/:category', function (req, res) {
                 var tot = data.body.total;
                 console.log("tot= ",tot);
                 if(tot>100) tot=100;
-                if(tot < 5)
+                if(tot < 5) //TODO: controllare che tutte abbiano il link
                   send_error();
                 var items = data.body.items;
                 var songs = {};
@@ -202,12 +202,12 @@ app.get('/songs/:category', function (req, res) {
 
 });
 
-app.get('/possibilities/:album_id/:track_number ', function (req, res) {
+app.get('/possibilities/:album_id/:track_number', function (req, res) {
     get_access_token(function (err) {
         if (err) {
             send_error();
         }
-        spotifyApi.getAlbumTracks(req.params.track_number , {})
+        spotifyApi.getAlbumTracks(req.params.album_id , { limit : 30, offset : 0})
             .then(function (data) {
                 console.log(data.body);
                 var items = data.body.items;
@@ -215,7 +215,7 @@ app.get('/possibilities/:album_id/:track_number ', function (req, res) {
                 if(tot < 4) send_error();
                 var possibilities = {};
                 var j = 1;
-                var array=[req.params.disc_number];
+                var array=[req.params.track_number];
                 for (var n = 0; n < 4; n++) {
                     do{
                       i=Math.floor(Math.random() * (tot));

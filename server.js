@@ -75,7 +75,6 @@ var get_access_token = function (callback) {
     if(startTime[0]!=-1) {
         diff = process.hrtime(startTime);
     }
-    console.log(diff);
     if (diff[0] == -1 || diff[0] > 3000) {
         refresh_access_token(callback);
     }
@@ -95,13 +94,11 @@ var refresh_access_token = function (callback) {
         json: true
     };
     startTime = process.hrtime();
-    console.log(startTime);
     request.post(authOptions, function (error, response, body) {
         if (!error && response.statusCode === 200) {
 
             // use the access token to access the Spotify Web API
             var token = body.access_token;
-            console.log(body);
             spotifyApi.setAccessToken(token);
             callback(error)
         }
@@ -142,6 +139,7 @@ app.get('/categories', function (req, res, next) {
 });
 
 app.get('/songs/:category', function (req, res) {
+  console.log('/songs');
     var item = playlists.items[req.params.category];
     if (item == null) {
         var response = {};
@@ -156,17 +154,15 @@ app.get('/songs/:category', function (req, res) {
 
     get_access_token(function (err) {
         if (err) {
-            send_error();
+            send_error(res);
         }
         // Get tracks in a playlist
         spotifyApi.getPlaylistTracks(author, id, {'offset': 0})
             .then(function (data) {
-                console.log('The playlist contains these tracks', data.body);
                 var tot = data.body.total;
-                console.log("tot= ",tot);
                 if(tot>100) tot=100;
                 if(tot < 5) //TODO: controllare che tutte abbiano il link
-                  send_error();
+                  send_error(res);
                 var items = data.body.items;
                 var songs = {};
                 var j = 0; var i=0;
@@ -195,7 +191,7 @@ app.get('/songs/:category', function (req, res) {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(songs);
             }, function (err) {
-                send_error();
+                send_error(res);
             });
     });
 
@@ -203,16 +199,21 @@ app.get('/songs/:category', function (req, res) {
 });
 
 app.get('/possibilities/:album_id/:track_number', function (req, res) {
+  console.log('possibilities');
     get_access_token(function (err) {
         if (err) {
             send_error();
         }
         spotifyApi.getAlbumTracks(req.params.album_id , { limit : 30, offset : 0})
             .then(function (data) {
-                console.log(data.body);
                 var items = data.body.items;
                 var tot = data.body.total;
-                if(tot < 4) send_error();
+                if(tot < 4){ //TODO: do better!
+                  var result = {'possibility1':'What a Wonderful World','possibility2':'Your Song','possibility3':'All You Need Is Love','possibility4':'Rolling In The Deep'};
+                  result.total=4;
+                  result.status='ok';
+                  res.json(result);
+                }
                 var possibilities = {};
                 var j = 1;
                 var array=[req.params.track_number];
@@ -231,7 +232,7 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
                 res.send(possibilities);
             }, function (err) {
                 console.log('Something went wrong!', err);
-                send_error();
+                send_error(res);
             });
 
     });

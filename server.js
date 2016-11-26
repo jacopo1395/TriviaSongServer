@@ -178,7 +178,7 @@ app.get('/songs/:category', function (req, res) {
                             'album': items[i].track.album.name,
                             'album_id': items[i].track.album.id,
                             'album_image': items[i].track.album.images[0].url,
-                            'title': items[i].track.name,
+                            'title': items[i].track.name.split('-')[0],
                             'link': items[i].track.preview_url,
                             'track_number': items[i].track.track_number
                         };
@@ -222,7 +222,8 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
                       i=Math.floor(Math.random() * (tot));
                     }while(contains.call(array, i));
                     array.push(i);
-                    var name = items[i].name;
+                    var name = items[i].name.split('-')[0];
+                    //TODO: fare controllo anche sul nome non solo sul track_number
                     possibilities['possibility' + j] = name;
                     j++;
                 }

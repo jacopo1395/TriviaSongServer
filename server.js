@@ -208,7 +208,7 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
             .then(function (data) {
                 var items = data.body.items;
                 var tot = data.body.total;
-                if(tot < 4){ //TODO: do better!
+                if(tot < 5){ //TODO: do better!
                   var result = {'possibility1':'What a Wonderful World','possibility2':'Your Song','possibility3':'All You Need Is Love','possibility4':'Rolling In The Deep'};
                   result.total=4;
                   result.status='ok';

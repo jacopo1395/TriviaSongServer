@@ -219,6 +219,7 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
                     result.total = 4;
                     result.status = 'ok';
                     res.json(result);
+                    return;
                 }
                 var possibilities = {};
                 var j = 1;
@@ -230,6 +231,7 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
                         result.total = 4;
                         result.status = 'ok';
                         res.json(result);
+                        return;
                     }
                     var name = items[n].name.split('-')[0];
                     if (name_array.indexOf(name)<0)
@@ -240,6 +242,7 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
                     result.total = 4;
                     result.status = 'ok';
                     res.json(result);
+                    return;
                 }
                 for(var n=0; n<4 ;n++){
                     do {

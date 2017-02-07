@@ -63,16 +63,16 @@ var app = express();
 
 app.use(cookieParser());
 
-var send_error = function(res){
-      var response = {};
-      response.status = "error";
-      res.setHeader('Content-Type', 'application/json');
-      res.send(response);
-      return;
+var send_error = function (res) {
+    var response = {};
+    response.status = "error";
+    res.setHeader('Content-Type', 'application/json');
+    res.send(response);
+    return;
 };
 
 var get_access_token = function (callback) {
-    if(startTime[0]!=-1) {
+    if (startTime[0] != -1) {
         diff = process.hrtime(startTime);
     }
     if (diff[0] == -1 || diff[0] > 3000) {
@@ -145,7 +145,7 @@ app.get('/categories', function (req, res, next) {
 });
 
 app.get('/songs/:category', function (req, res) {
-  console.log('/songs');
+    console.log('/songs');
     var item = playlists.items[req.params.category];
     if (item == null) {
         var response = {};
@@ -166,19 +166,20 @@ app.get('/songs/:category', function (req, res) {
         spotifyApi.getPlaylistTracks(author, id, {'offset': 0})
             .then(function (data) {
                 var tot = data.body.total;
-                if(tot>100) tot=100;
-                if(tot < 5) //TODO: controllare che tutte abbiano il link
-                  send_error(res);
+                if (tot > 100) tot = 100;
+                if (tot < 5) //TODO: controllare che tutte abbiano il link
+                    send_error(res);
                 var items = data.body.items;
                 var songs = {};
-                var j = 0; var i=0;
-                var array=[];
+                var j = 0;
+                var i = 0;
+                var array = [];
                 for (var n = 0; n < 5; n++) {
-                    do{
-                      i=Math.floor(Math.random() * (tot));
-                    }while(contains.call(array, i));
+                    do {
+                        i = Math.floor(Math.random() * (tot));
+                    } while (contains.call(array, i));
                     array.push(i);
-                    if (items[i].track.preview_url != null && items[i].track.track_number!=null) {
+                    if (items[i].track.preview_url != null && items[i].track.track_number != null) {
                         songs['song' + j] = {
                             'author': items[i].track.artists[0].name,
                             'album': items[i].track.album.name,
@@ -259,34 +260,59 @@ app.get('/possibilities2/:category', function (req, res) {
 
 
 app.get('/possibilities/:album_id/:track_number', function (req, res) {
-  console.log('possibilities');
+    console.log('possibilities');
     get_access_token(function (err) {
         if (err) {
             send_error();
         }
-        spotifyApi.getAlbumTracks(req.params.album_id , { limit : 30, offset : 0})
+        spotifyApi.getAlbumTracks(req.params.album_id, {limit: 30, offset: 0})
             .then(function (data) {
                 var items = data.body.items;
                 var tot = data.body.total;
-                if(tot < 4){ //TODO: do better!
-                  var result = {'possibility1':'What a Wonderful World','possibility2':'Your Song','possibility3':'All You Need Is Love','possibility4':'Rolling In The Deep'};
-                  result.total=4;
-                  result.status='ok';
-                  res.json(result);
+                var result = {
+                    'possibility1': 'What a Wonderful World',
+                    'possibility2': 'Your Song',
+                    'possibility3': 'All You Need Is Love',
+                    'possibility4': 'Rolling In The Deep'
+                };
+                if (tot < 4) { //TODO: do better!
+                    result.total = 4;
+                    result.status = 'ok';
+                    res.json(result);
+                    return;
                 }
                 var possibilities = {};
                 var j = 1;
-                var array=[req.params.track_number];
-                for (var n = 0; n < 4; n++) {
-                    do{
-                      i=Math.floor(Math.random() * (tot));
-                    }while(contains.call(array, i));
+                var i;
+                var array = [req.params.track_number];
+                var name_array = [];
+                for (var n = 0; n < tot; n++) {
+                    if(items[n].name!=null) {
+                        result.total = 4;
+                        result.status = 'ok';
+                        res.json(result);
+                        return;
+                    }
+                    var name = items[n].name.split('-')[0];
+                    if (name_array.indexOf(name)<0)
+                        name_array.push(name);
+
+                }
+                if (tot < 4) { //TODO: do better!
+                    result.total = 4;
+                    result.status = 'ok';
+                    res.json(result);
+                    return;
+                }
+                for(var n=0; n<4 ;n++){
+                    do {
+                        i = Math.floor(Math.random() * (name_array.length));
+                    } while (contains.call(array, i));
                     array.push(i);
-                    var name = items[i].name.split('-')[0];
-                    //TODO: fare controllo anche sul nome non solo sul track_number
-                    possibilities['possibility' + j] = name;
+                    possibilities['possibility' + j] = name_array[i];
                     j++;
                 }
+
                 possibilities.total = 4;
                 possibilities.status = "ok";
                 res.setHeader('Content-Type', 'application/json');
@@ -299,21 +325,21 @@ app.get('/possibilities/:album_id/:track_number', function (req, res) {
     });
 });
 
-var contains = function(needle) {
+var contains = function (needle) {
     // Per spec, the way to identify NaN is that it is not equal to itself
     var findNaN = needle !== needle;
     var indexOf;
 
-    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+    if (!findNaN && typeof Array.prototype.indexOf === 'function') {
         indexOf = Array.prototype.indexOf;
     } else {
-        indexOf = function(needle) {
+        indexOf = function (needle) {
             var i = -1, index = -1;
 
-            for(i = 0; i < this.length; i++) {
+            for (i = 0; i < this.length; i++) {
                 var item = this[i];
 
-                if((findNaN && item !== item) || item === needle) {
+                if ((findNaN && item !== item) || item === needle) {
                     index = i;
                     break;
                 }

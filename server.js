@@ -106,6 +106,12 @@ var refresh_access_token = function (callback) {
     });
 };
 
+app.get("/doc1", function(req,res){
+  res.header('Access-Control-Allow-Origin', "*");
+   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+   res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.send("ciao");
+});
 
 app.get('/', function (req, res) {
     // startTime=process.hrtime();
@@ -197,6 +203,60 @@ app.get('/songs/:category', function (req, res) {
 
 
 });
+
+app.get('/possibilities2/:category', function (req, res) {
+    console.log('/poss');
+    var item = playlists.items[req.params.category];
+    if (item == null) {
+        var response = {};
+        response.result = "wrong category";
+        response.status = "error";
+        res.setHeader('Content-Type', 'application/json');
+        res.send(response);
+    }
+    var author = item.author;
+    var id = item.id;
+
+
+    get_access_token(function (err) {
+        if (err) {
+            send_error(res);
+        }
+        // Get tracks in a playlist
+        spotifyApi.getPlaylistTracks(author, id, {'offset': 0})
+            .then(function (data) {
+                var tot = data.body.total;
+                if(tot>100) tot=100;
+                if(tot < 5) //TODO: controllare che tutte abbiano il link
+                    send_error(res);
+                var items = data.body.items;
+                var songs = {};
+                var j = 1; var i=0;
+                var array=[];
+                var result = {'possibility1':'What a Wonderful World','possibility2':'Your Song','possibility3':'All You Need Is Love','possibility4':'Rolling In The Deep'};
+                for (var n = 0; n < 5; n++) {
+                    do{
+                        i=Math.floor(Math.random() * (tot));
+                    }while(contains.call(array, i));
+                    array.push(i);
+                    if (items[i].track.track_number!=null) {
+                        result['possibility' + j] = items[i].track.name.split('-')[0];
+                        j++;
+                    }
+                    else n--;
+                }
+                result.total = j-1;
+                result.status = "ok";
+                res.setHeader('Content-Type', 'application/json');
+                res.send(result);
+            }, function (err) {
+                send_error(res);
+            });
+    });
+
+
+});
+
 
 app.get('/possibilities/:album_id/:track_number', function (req, res) {
   console.log('possibilities');

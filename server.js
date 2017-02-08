@@ -55,7 +55,7 @@ var playlists = {
         'indie_alt': {'author': 'spotify', 'id': '0XUlpafP8eIlIWt3VHSd7q'},
         'edm_dance': {'author': 'spotify', 'id': '1GQLlzxBxKTb6tJsD4RxHI'},
         'rnb': {'author': 'spotify', 'id': '06CemleTteSalaVGVMbgFy'},
-        'county': {'author': 'spotify', 'id': '4ecQaDJHF55Ls9m2lKIXbI'},
+        'country': {'author': 'spotify', 'id': '4ecQaDJHF55Ls9m2lKIXbI'},
         'folk_americana': {'author': 'spotify', 'id': '5mRQ1OKwXfOuTCXftFu62R'},
         'soul': {'author': 'spotify', 'id': '06CemleTteSalaVGVMbgFy'},
         'jazz': {'author': 'spotify', 'id': '5O2ERf8kAYARVVdfCKZ9G7'},

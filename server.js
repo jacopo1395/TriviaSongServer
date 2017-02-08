@@ -51,7 +51,16 @@ var playlists = {
     'items': {
         'rock': {'author': 'spotify', 'id': '2Qi8yAzfj1KavAhWz1gaem'},
         'metal': {'author': 'spotify', 'id': '2k2AuaynH7E2v8mwvhpeAO'},
-        'pop': {'author': 'spotify', 'id': '5FJXhjdILmRA2z5bvz4nzf'}
+        'pop': {'author': 'spotify', 'id': '5FJXhjdILmRA2z5bvz4nzf'},
+        'indie_alt': {'author': 'spotify', 'id': '0XUlpafP8eIlIWt3VHSd7q'},
+        'edm_dance': {'author': 'spotify', 'id': '1GQLlzxBxKTb6tJsD4RxHI'},
+        'rnb': {'author': 'spotify', 'id': '06CemleTteSalaVGVMbgFy'},
+        'county': {'author': 'spotify', 'id': '4ecQaDJHF55Ls9m2lKIXbI'},
+        'folk_americana': {'author': 'spotify', 'id': '5mRQ1OKwXfOuTCXftFu62R'},
+        'soul': {'author': 'spotify', 'id': '06CemleTteSalaVGVMbgFy'},
+        'jazz': {'author': 'spotify', 'id': '5O2ERf8kAYARVVdfCKZ9G7'},
+        'blues': {'author': 'spotify', 'id': '7ECmf74Ey57LAYulSxhL9w'},
+        'hiphop': {'author': 'spotify', 'id': '5yolys8XG4q7YfjYGl5Lff'}
     },
     'total': 3
 };
